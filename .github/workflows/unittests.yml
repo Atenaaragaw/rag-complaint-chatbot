@@ -23,22 +23,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        # Explicitly install langchain-huggingface to prevent ModuleNotFoundError
         pip install langchain-huggingface huggingface-hub 
 
-    - name: Run Data Integrity Tests
+    - name: Run Preprocessing
+      # This creates the 'data/processed/filtered_complaints.csv' 
+      # required by the indexing script.
       run: |
-        # Basic check to ensure source files are present
-        python -c "import os; assert os.path.exists('src/preprocessing.py')"
-        python -c "import os; assert os.path.exists('src/indexing.py')"
+        python src/preprocessing.py
 
     - name: Generate Sample Index for Testing
-      # This step creates the faiss_index_sample directory in the runner
-      # ensuring the test_rag_core.py script finds the necessary files.
+      # Now that the CSV exists, this creates the FAISS index directory.
       run: |
         python src/indexing.py
 
     - name: Run Vector Store Health Check
+      # This final check will now find the directory and pass.
       run: |
-        # This will now pass as the directory was created in the previous step
         python tests/test_rag_core.py
