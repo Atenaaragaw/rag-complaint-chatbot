@@ -1,0 +1,11 @@
+pandas
+matplotlib
+seaborn
+scikit-learn
+langchain
+langchain-community
+sentence-transformers
+chromadb
+faiss-cpu
+streamlit
+python-dotenv
