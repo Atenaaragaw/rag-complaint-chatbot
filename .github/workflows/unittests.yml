@@ -25,18 +25,25 @@ jobs:
         pip install -r requirements.txt
         pip install langchain-huggingface huggingface-hub 
 
+    - name: Create Mock Data for Testing
+      # This creates a minimal version of your raw data so the scripts don't crash.
+      run: |
+        mkdir -p data/raw
+        echo "Product,Consumer complaint narrative,Complaint ID" > data/raw/complaints.csv
+        echo "Credit card,I have a billing issue with my card.,12345" >> data/raw/complaints.csv
+        echo "Personal loan,Interest rate is too high.,67890" >> data/raw/complaints.csv
+
     - name: Run Preprocessing
-      # This creates the 'data/processed/filtered_complaints.csv' 
-      # required by the indexing script.
+      # Generates 'data/processed/filtered_complaints.csv' from the mock data.
       run: |
         python src/preprocessing.py
 
     - name: Generate Sample Index for Testing
-      # Now that the CSV exists, this creates the FAISS index directory.
+      # Uses the newly created CSV to build the FAISS index.
       run: |
         python src/indexing.py
 
     - name: Run Vector Store Health Check
-      # This final check will now find the directory and pass.
+      # Final validation of the entire pipeline.
       run: |
         python tests/test_rag_core.py

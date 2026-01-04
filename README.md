@@ -1,16 +1,16 @@
-🤖 Intelligent Complaint Analysis for Financial Services
+##  🤖 Intelligent Complaint Analysis for Financial Services
 Building a RAG-Powered Chatbot to Turn Customer Feedback into Actionable Insights
-📈 Project Overview
+## 1,📈 Project Overview
 This project transforms 357,000+ unstructured customer complaints into a strategic asset for CrediTrust Financial. By leveraging Retrieval-Augmented Generation (RAG), we enable product managers to identify major trends in minutes rather than days.
 
-Core Objectives
+## 2, Core Objectives
 Speed: Reduce trend identification time from days to minutes.
 
 Accessibility: Enable non-technical teams (Support/Compliance) to query data in plain English.
 
 Proactivity: Shift from reactive firefighting to proactive issue resolution.
 
-🛠️ Technical Progress (Interim Report)
+## 3 🛠️ Technical Progress (Interim Report)
 Task 1: Data Engineering & EDA
 Filtered Corpus: 357,284 relevant complaints isolated (Credit Cards, Personal Loans, Savings, Money Transfers).
 
@@ -27,7 +27,7 @@ Technology: Powered by FAISS for millisecond-latency semantic retrieval.
 
 Granularity: 500-character chunks with a 50-character overlap to preserve narrative flow.
 
-⚙️ CI/CD & Workflow
+## 4, ⚙️ CI/CD & Workflow
 To ensure enterprise stability, the project includes an automated GitHub Actions pipeline:
 
 Environment Sync: Validates dependencies from requirements.txt.
@@ -41,7 +41,7 @@ graph LR
     B --> C[Stratified Sampling]
     C --> D[FAISS Indexing]
     D --> E[CI/CD Validation]
-📂 Project Structure
+## 5, 📂 Project Structure
 Plaintext
 
 rag-complaint-chatbot/
@@ -55,7 +55,7 @@ rag-complaint-chatbot/
 │   └── rag_engine.py    # LLM Retrieval Logic (In Progress)
 ├── tests/               # Automated Integrity Checks
 └── .github/workflows/   # CI/CD Automation
-🚀 Next Steps
+## 6, 🚀 Next Steps
 [ ] Task 3: Complete the RAG inference chain using Mistral-7B.
 
 [ ] Evaluation: Conduct a qualitative audit of 10 strategic business questions.
