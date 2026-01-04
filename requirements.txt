@@ -9,3 +9,5 @@ chromadb
 faiss-cpu
 streamlit
 python-dotenv
+langchain-huggingface
+huggingface-hub
