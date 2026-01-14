@@ -1,47 +1,26 @@
 name: RAG Pipeline CI
-
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+on: [push, pull_request]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: {python-version: '3.10'}
+      
+      - name: Install Dependencies
+        run: pip install -r requirements.txt langchain-huggingface huggingface-hub
+        
+      - name: Create Mock Data
+        run: |
+          mkdir -p data/raw
+          echo "Product,Consumer complaint narrative,Complaint ID" > data/raw/complaints.csv
+          echo "Credit card,Billing issue on my account.,12345" >> data/raw/complaints.csv
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Run Preprocessing
+        # Ensure your script uses the generated mock file
+        run: python src/preprocessing.py --input data/raw/complaints.csv
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        # Ensure the specific RAG libraries are present
-        pip install langchain-huggingface huggingface-hub 
-
-    - name: Create Mock Data for Testing
-      # Generates a minimal version of your raw data so scripts don't crash
-      run: |
-        mkdir -p data/raw
-        echo "Product,Consumer complaint narrative,Complaint ID" > data/raw/complaints.csv
-        echo "Credit card,I have a billing issue.,12345" >> data/raw/complaints.csv
-        echo "Savings account,Account was locked unexpectedly.,67890" >> data/raw/complaints.csv
-
-    - name: Run Preprocessing
-      # Generates 'data/processed/filtered_complaints.csv'
-      run: python src/preprocessing.py
-
-    - name: Generate Sample Index for Testing
-      # Builds the FAISS index required for the health check
-      run: python src/indexing.py
-
-    - name: Run Vector Store Health Check
-      # Final validation of the entire pipeline
-      run: python tests/test_rag_core.py
+      - name: Final Health Check
+        run: python tests/run_eval.py
