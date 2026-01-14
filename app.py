@@ -1,65 +1,55 @@
 import streamlit as st
-from src.rag_engine import get_rag_chain
+import os
+from src.rag_engine import CrediTrustEngine
 
 # 1. Page Configuration
-st.set_page_config(
-    page_title="CrediTrust Strategic Analyst",
-    page_icon="🏦",
-    layout="wide"
-)
+st.set_page_config(page_title="CrediTrust Strategic Analyst", layout="wide")
 
-# 2. Cached Engine Loader
-# This ensures we don't reload the FAISS index on every click
+st.title("🏦 CrediTrust Strategic Complaint Intelligence")
+st.markdown("---")
+
+# 2. Initialize the Engine (Using caching to prevent reloading on every click)
 @st.cache_resource
-def load_rag_engine():
-    return get_rag_chain()
+def init_engine():
+    # Points to the root-level vector store
+    index_path = os.path.join(os.getcwd(), "vector_store", "faiss_index_sample")
+    return CrediTrustEngine(index_path)
 
 try:
-    # Initialize the engine
-    rag_chain = load_rag_engine()
-
-    # 3. Sidebar for System Status
-    with st.sidebar:
-        st.title("⚙️ System Status")
-        st.success("FAISS Index Loaded")
-        st.success("Mistral-Nemo Online")
-        st.divider()
-        st.info("Role: Senior Strategic Analyst")
-
-    # 4. Main Dashboard UI
-    st.title("🏦 CrediTrust: Customer Complaint Analysis")
-    st.markdown("Use this AI-powered dashboard to investigate strategic trends in customer complaints.")
-
-    # Search Interface
-    query = st.text_input(
-        "Enter investigation query:",
-        placeholder="e.g., Identify recurring billing errors or late payment disputes..."
-    )
-
-    if st.button("Generate Strategic Report"):
-        if query:
-            with st.spinner("Analyzing complaint database..."):
-                # Execute the RAG chain
-                response = rag_chain.invoke({"input": query})
-                
-                # Layout for Results
-                col1, col2 = st.columns([2, 1])
-
-                with col1:
-                    st.subheader("💡 Strategic Insights")
-                    st.markdown(response["answer"])
-
-                with col2:
-                    st.subheader("🔍 Referenced Sources")
-                    # 'context' contains the documents retrieved by FAISS
-                    for i, doc in enumerate(response["context"]):
-                        # Extract metadata if available, otherwise use index
-                        cid = doc.metadata.get('complaint_id', f"Source {i+1}")
-                        with st.expander(f"Complaint ID: {cid}"):
-                            st.write(doc.page_content)
-        else:
-            st.warning("Please enter a query to begin analysis.")
-
+    engine = init_engine()
+    st.sidebar.success("✅ RAG Engine Online")
 except Exception as e:
-    st.error(f"⚠️ Critical System Error: {e}")
-    st.info("Check your .env file for the MISTRAL_API_KEY.")
+    st.sidebar.error(f"❌ Engine Offline: {e}")
+    st.stop()
+
+# 3. User Interface
+query = st.text_input("Enter a strategic question (e.g., 'What are the main issues with billing?')")
+
+if query:
+    with st.spinner("Analyzing high-volume complaint data..."):
+        # We now use the .run_query() method from our new class
+        answer, sources = engine.run_query(query)
+        
+        # Display the Analysis
+        st.subheader("📊 Strategic Analysis Report")
+        st.info(answer)
+        
+        # 4. Source Transparency (Addressing feedback on 'robustness')
+        st.subheader("📂 Reference Data")
+        if sources:
+            for doc in sources:
+                with st.expander(f"Complaint ID: {doc.metadata.get('complaint_id', 'Unknown')}"):
+                    st.write(f"**Product:** {doc.metadata.get('product')}")
+                    st.write(f"**Issue:** {doc.metadata.get('issue')}")
+                    st.write(f"**Content:** {doc.page_content}")
+        else:
+            st.warning("No specific source documents were retrieved for this query.")
+
+# Sidebar Information
+st.sidebar.markdown("---")
+st.sidebar.info("""
+**System Specs:**
+- **Model:** Mistral-Nemo-Instruct
+- **Retriever:** FAISS (all-MiniLM-L6-v2)
+- **Status:** Operational
+""")

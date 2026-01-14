@@ -1,0 +1,12 @@
+[
+  {
+    "question": "What is the dollar limit for Western Union test questions?",
+    "expected_answer": "$290.00",
+    "context_id": 1607000
+  },
+  {
+    "question": "Was consent given for the hard inquiry in complaint 7573804?",
+    "expected_answer": "No/Without consent",
+    "context_id": 7573804
+  }
+]
